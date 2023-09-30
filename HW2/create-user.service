@@ -1,0 +1,11 @@
+[Unit]
+Description=Create a new user
+
+[Service]
+Type=simple
+ExecStart=/bin/bash /usr/local/bin/create-user.sh user1 user1
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
+
