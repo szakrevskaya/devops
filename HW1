@@ -4,3 +4,5 @@ du -Sh | sort -rh | head -7 >> hw1.txt
 2. Создать пользователя и добавить его в группу sudo.
 adduser hw1user
 usermod -aG sudo hw1user
+
+change
