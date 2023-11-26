@@ -14,12 +14,13 @@ output "instance_id"{
     value = aws_instance.sz-dev-t.id
 }
 
-variable "security_group_id" {}
-
-data "aws_security_group" "selected" {
-  id = var.security_group_id
+data "aws_security_groups" "test" {
+  filter {
+    name   = "group-name"
+    values = ["ec2group123"]
+  }
 }
 
 output "sg_id"{
-    value = "${data.aws_security_group.selected.id}"
+    value = data.aws_security_groups.test.ids
 }
