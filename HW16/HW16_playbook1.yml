@@ -1,0 +1,13 @@
+- name: Copy file and remove it
+  hosts: dev-servers
+
+  tasks:
+    - name: Copy file to remote server
+      ansible.builtin.copy:
+        src: ansible.txt
+        dest: $HOME
+
+    - name: Remove file (delete file)
+      ansible.builtin.file:
+        path: $HOME/ansible.txt
+        state: absent

@@ -1,0 +1,9 @@
+- name: Create user
+  hosts: dev-servers
+  become: yes
+
+  tasks:
+    - name: Create user
+      ansible.builtin.user:
+        name: user
+        group: admin

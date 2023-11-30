@@ -1,0 +1,30 @@
+- name: Docker installation
+  hosts: dev-servers
+  become: yes
+
+  tasks:
+    - name: Update apt
+      ansible.builtin.apt:
+        update-cache: yes
+
+    - name: Install docker
+      apt:
+        name: docker.io
+        state: latest
+
+    - name: Check docker is active
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Ensure group "docker" exists
+      ansible.builtin.group:
+        name: docker
+        state: present
+
+    - name: Adding user to docker group
+      user:
+        name: user
+        groups: docker
+        append: yes
