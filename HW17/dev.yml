@@ -1,0 +1,12 @@
+key_name: devops
+region: us-east-1
+instance_type: t2.micro
+image: ami-0fc5d935ebf8bc3bc
+group_id: sg-02bed5840a3b6210f
+vpc_subnet_id: subnet-0e744ecb778ad170d
+env_tag: dev
+instance_name_tag: sz-instance-from-ansible
+delay: 60
+timeout: 60
+aws_access_key: AKIARNGVWZTHNYMKO34F
+aws_secret_key: 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

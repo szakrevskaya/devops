@@ -1,0 +1,105 @@
+- name: Create EC2 instance and run docker container
+  hosts: all
+  become: yes
+  vars_files:
+    - group_vars/dev.yml
+
+  tasks:
+    - name: Create EC2 instance
+      ec2:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        instance_type: "{{ instance_type }}"
+        key_name: "{{ key_name }}"
+        region: "{{ region }}"
+        image: "{{ image }}"
+        group_id: "{{ group_id }}"
+        vpc_subnet_id: "{{ vpc_subnet_id }}"
+        assign_public_ip: yes
+        instance_tags:
+          Environment: "{{ env_tag }}"
+          Name: "{{ instance_name_tag }}"
+      register: ec2
+    - name: Add new instance to host group
+      add_host:
+        hostname: "{{ item.public_ip }}"
+        groupname: launched
+        name: "{{ item.public_ip }}"
+        ansible_private_key_file: /home/ubuntu/devops.pem
+      loop: "{{ ec2.instances }}"
+
+    - name: Wait for SSH to come up
+      wait_for_connection:
+        delay: "{{ delay }}"
+        timeout: "{{ timeout }}"
+      loop: "{{ ec2.instances }}"
+
+# Вот здесь я опиралась на документацию по модулю ec2 https://docs.ansible.com/ansible/2.9/modules/ec2_module.html
+# Добавила ec2 instance в группу launched и запустила на нем Docker контейнер.
+# Насколько я понимаю, это отдельный play, поэтому для него тоже нужно указать var файл с переменными, иначе ansible из не видит
+- hosts: launched
+  become: yes
+  vars_files:
+    - group_vars/dev.yml
+  tasks:
+    - name: Apt update
+      apt:
+        update-cache: yes
+
+    - name: Install docker
+      apt:
+        name: docker.io
+        state: latest
+
+    - name: Install pip3
+      apt:
+        name: python3-pip
+
+    - name: Install pip dependencies
+      pip:
+        name: docker
+
+    - name: Start DB container
+      docker_container:
+        image: postgres:16
+        name: testdb
+        volumes: /home/ubuntu/pg:/var/lib/postgresql/data
+        restart_policy: always
+        state: started
+        ports:
+          - "5432:5432"
+        env:
+          POSTGRES_PASSWORD: "1234"
+          POSTGRES_USER: "postgres"
+
+# Вот здесь намучилась. Пример из документации не работает, так как в этом play просто не видна была переменная ec2,
+# поэтому я сначала получила ec2 инстанс по тегу Name и сложила результат фильтра ec2_instance_info в переменную instances,
+# а оттуда в цикле я достала инфу по нужному ec2 инстансу и по его instance_id сделала terminate.
+- name: Terminate instances
+  hosts: launched
+  vars_files:
+    - group_vars/dev.yml
+  connection: local
+  tasks:
+    - name: Get ec2 instance id by its name tag
+      ec2_instance_info:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        region: "{{ region }}"
+        filters:
+          "tag:Name": "{{ instance_name_tag }}"
+          instance-state-name: running
+      register: instances
+
+    - name: Print instances variable
+      debug:
+        var: instances
+
+    - name: Terminate instances that were previously launched
+      ec2:
+        state: 'absent'
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        region: "{{ region }}"
+        instance_ids: '{{ item.instance_id }}'
+      loop: "{{ instances.instances }}"
