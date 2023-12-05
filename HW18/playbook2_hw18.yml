@@ -1,0 +1,16 @@
+- name: Restart server and wait for launch
+  hosts: all
+  become: yes
+
+  pre_tasks:
+    - name: Wait for server to restart
+      reboot:
+        reboot_timeout: 3600
+      register: restarted
+    - name: Print restarted
+      debug:
+        var: restarted
+
+  roles:
+    - geerlingguy.java
+    - robertdebock.tomcat
