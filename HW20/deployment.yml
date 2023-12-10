@@ -20,7 +20,7 @@ spec:
           imagePullPolicy: IfNotPresent
           args:
             - -listen=:3000
-            - -text=hren
+            - -text=my-deployment
           ports:
             - name: app-port
               containerPort: 3000
