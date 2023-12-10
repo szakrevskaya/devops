@@ -1,31 +1,16 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: my-ingress
-  annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/rewrite-target: /
+  name: php-app-ingress
 spec:
-  tls:
-  - hosts:
-    - szakrevskaya.com
-    secretName: tls-secret
-  ingressClassName: nginx
   rules:
-    - http:
-        paths:
-          - path: /home
-            pathType: Prefix
-            backend:
-              service:
-                name: my-deployment
-                port:
-                  name: svc-port
-          - path: /php
-            pathType: Prefix
-            backend:
-              service:
-                name: simple-php-app
-                port:
-                  name: svc-port
+  - host: a2d4ff2cba9b74796be860b72eb75e51-1564625881.us-east-1.elb.amazonaws.com
+    http:
+      paths:        
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: simple-php-app-service
+            port:
+              number: 80

@@ -1,27 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: simple-php-app
-  labels:
-    app.kubernetes.io/name: simple-php-app
+  name: simple-php-app-deployment
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: simple-php-app
+      app: simple-php-app
   replicas: 1
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: simple-php-app
+        app: simple-php-app
     spec:
       containers:
         - name: simple-php-app
-          image: 097084951758.dkr.ecr.us-east-1.amazonaws.com/sz-php-example-app:dev
-          imagePullPolicy: IfNotPresent
+          image: 097084951758.dkr.ecr.us-east-1.amazonaws.com/sz-test-app:latest
           ports:
-            - name: httpport
-              containerPort: 80
-          resources:
-            requests:
-              cpu: 0.125
-              memory: 50Mi
+          - containerPort: 80
