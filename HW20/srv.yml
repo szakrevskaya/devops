@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-deployment
+  labels:
+    app.kubernetes.io/name: my-deployment
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: my-deployment
+  ports:
+    - name: svc-port
+      port: 80
+      targetPort: app-port
+      protocol: TCP
+    - name: https
+      port: 443
+      targetPort: https

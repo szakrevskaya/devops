@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-deployment
+  labels:
+    app.kubernetes.io/name: my-deployment
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: my-deployment
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: my-deployment
+    spec:
+      containers:
+        - name: my-deployment
+          image: hashicorp/http-echo
+          imagePullPolicy: IfNotPresent
+          args:
+            - -listen=:3000
+            - -text=hren
+          ports:
+            - name: app-port
+              containerPort: 3000
+          resources:
+            requests:
+              cpu: 0.125
+              memory: 50Mi
